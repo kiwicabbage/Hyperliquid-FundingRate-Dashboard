@@ -1,0 +1,7 @@
+# secrets / env
+.env
+decker-compose.yml
+
+# local docker data
+influxdb/
+
