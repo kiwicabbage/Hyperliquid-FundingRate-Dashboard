@@ -1,0 +1,21 @@
+services:
+  influxdb:
+    image: influxdb:2.7
+    restart: unless-stopped
+    ports: ["8086:8086"]           # 公網 8086 → 服務 8086
+    volumes:
+      - ./influx:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_INIT_PASSWORD:?Set INFLUXDB_INIT_PASSWORD in .env}
+      - DOCKER_INFLUXDB_INIT_ORG=my-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=funding
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    restart: unless-stopped
+    depends_on: [influxdb]
+    ports: ["3000:3000"]           # 公網 3000 → 服務 3000
+    volumes:
+      - ./grafana:/var/lib/grafana

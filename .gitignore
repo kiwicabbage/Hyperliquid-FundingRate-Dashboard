@@ -1,7 +1,14 @@
-# secrets / env
+# Python
+__pycache__/
+*.pyc
+
+# Secrets / environment
 .env
-decker-compose.yml
+*.key
 
-# local docker data
+# Local files and data
+.DS_Store
+data/
 influxdb/
-
+influx/
+grafana/
