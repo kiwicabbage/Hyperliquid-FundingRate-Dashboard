@@ -1,69 +1,69 @@
 # Hyperliquid Funding Rate Dashboard
 
-這是一個監控 Hyperliquid 永續合約資金費率的資料收集與視覺化專案。它會定期取得各幣種的 funding rate，換算年化報酬率（APR）並寫入 InfluxDB，再透過 Grafana dashboard 協助快速找出值得進一步評估的資金費率套利機會。
+This project collects and visualizes funding rate data for Hyperliquid perpetual contracts. It periodically retrieves funding rates for each asset, converts them into annual percentage rates (APR), stores the data in InfluxDB, and displays it in a Grafana dashboard to help identify funding rate arbitrage opportunities worth further evaluation.
 
-> 本專案提供監控與篩選資訊，不會自動下單。實際套利仍需評估現貨／永續合約對沖、交易手續費、滑價、借貸成本與清算風險。
+> This project provides monitoring and screening information only; it does not place orders automatically. Before executing an arbitrage strategy, you should evaluate spot/perpetual hedging, trading fees, slippage, borrowing costs, and liquidation risk.
 
-## 功能
+## Features
 
-- 每小時取得 Hyperliquid 最新資金費率
-- 顯示 funding rate 與換算後的 APR 排名
-- 回補最近數日的歷史資料（預設 7 天）
-- 將時間序列寫入 InfluxDB，供 Grafana 查詢與繪圖
-- 依時間區間與單一幣種查看資金費率變化
-- 可選擇將即時排行推送到 Telegram
+- Fetches the latest Hyperliquid funding rates every hour
+- Ranks assets by funding rate and the corresponding APR
+- Backfills historical data for a configurable number of days (7 days by default)
+- Writes time-series data to InfluxDB for Grafana queries and visualization
+- Tracks funding rate changes by time range and individual asset
+- Optionally sends real-time rankings to Telegram
 
-目前程式預設監控 `BERA`、`BTC`、`ETH`、`FARTCOIN`、`HYPE`、`PENGU`、`PUMP`、`PURR` 與 `SOL`，可在 Python 腳本的 `SYMBOLS` 清單中調整。
+By default, the application monitors `BERA`, `BTC`, `ETH`, `FARTCOIN`, `HYPE`, `PENGU`, `PUMP`, `PURR`, and `SOL`. You can customize this selection by editing the `SYMBOLS` list in the Python scripts.
 
-## 架構
+## Architecture
 
 ```text
 Hyperliquid API → Python collectors → InfluxDB → Grafana dashboard
-                                  └→ Telegram（可選）
+                                  └→ Telegram (optional)
 ```
 
-## 快速開始
+## Quick Start
 
-需求：Python 3、Docker 與 Docker Compose。
+Prerequisites: Python 3, Docker, and Docker Compose.
 
-1. 建立本地環境設定：
+1. Create the local environment configuration:
 
    ```bash
    cp .env.example .env
    ```
 
-   編輯 `.env`，至少設定 `INFLUXDB_TOKEN` 與強密碼 `INFLUXDB_INIT_PASSWORD`。`.env` 已被 Git 忽略，請勿提交任何真實 token 或密碼。
+   Edit `.env` and set at least `INFLUXDB_TOKEN` and a strong `INFLUXDB_INIT_PASSWORD`. The `.env` file is ignored by Git; never commit real tokens or passwords.
 
-2. 啟動 InfluxDB 與 Grafana：
+2. Start InfluxDB and Grafana:
 
    ```bash
    docker compose -f decker-compose.yml up -d
    ```
 
-3. 安裝 Python 套件：
+3. Install the Python dependencies:
 
    ```bash
    python -m pip install -r requirements.txt
    ```
 
-4. 回補最近 7 天資料（可調整 `--days`）：
+4. Backfill the last 7 days of data (adjustable with `--days`):
 
    ```bash
    python src/load_past_7days.py --days 7
    ```
 
-5. 啟動每小時執行的即時收集器：
+5. Start the live collector, which runs hourly:
 
    ```bash
    python src/rank_fr_togua.py
    ```
 
-Grafana 預設位於 `http://localhost:3000`。加入 InfluxDB data source 後，即可建立 funding rate、APR 排名、時間區間與單一幣種等面板。
+Grafana is available at `http://localhost:3000` by default. After adding InfluxDB as a data source, you can create panels for funding rates, APR rankings, time ranges, and individual assets.
 
-## Dashboard 畫面
+## Dashboard Screenshots
 
-![Grafana 首頁](pic/homepage.png)
+![Grafana home page](pic/homepage.png)
 
 <img src="pic/dashboard.png" alt="Hyperliquid funding dashboard" width="600">
 
-![資金費率查詢結果](pic/result.png)
+![Funding rate query results](pic/result.png)
